@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Quiz | Salesiano Aracaju</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --salesiano-blue: #1D337A;
+      --salesiano-blue-dark: #142458;
+      --salesiano-red: #D62828;
+      --salesiano-red-hover: #B51F1F;
+      --card-white: #FFFFFF;
+      --success-green: #2E7D32;
+      --error-red: #C62828;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    html, body {
+      min-height: 100dvh;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      background-color: var(--salesiano-blue);
+      color: var(--salesiano-blue);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      position: relative;
+    }
+
+    .main-wrapper {
+      width: 100%;
+      max-width: 740px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-header {
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+
+    .logo-card {
+      background: var(--card-white);
+      padding: 6px;
+      border-radius: 22px;
+      border: 3px solid var(--salesiano-red);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      width: 112px;
+      height: 112px;
+    }
+
+    .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .container {
+      width: 100%;
+      z-index: 10;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page {
+      display: none;
+      background: var(--card-white);
+      border-radius: 24px;
+      padding: 18px 22px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      animation: fadeIn 0.25s ease-in-out;
+      width: 100%;
+    }
+
+    .page.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Caixa de texto com rolagem interna na Página 1 */
+    .summary-scrollbox {
+      height: 260px;
+      max-height: 45dvh;
+      overflow-y: auto;
+      padding: 14px 16px;
+      border: 2px dashed rgba(214, 40, 40, 0.45);
+      border-radius: 16px;
+      background-color: #FAFBFF;
+      margin: 10px 0;
+    }
+
+    .summary-scrollbox::-webkit-scrollbar,
+    .quiz-body-scroll::-webkit-scrollbar,
+    .report-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .summary-scrollbox::-webkit-scrollbar-track,
+    .quiz-body-scroll::-webkit-scrollbar-track,
+    .report-scroll::-webkit-scrollbar-track {
+      background: #F1F1F1;
+      border-radius: 4px;
+    }
+    .summary-scrollbox::-webkit-scrollbar-thumb,
+    .quiz-body-scroll::-webkit-scrollbar-thumb,
+    .report-scroll::-webkit-scrollbar-thumb {
+      background: var(--salesiano-red);
+      border-radius: 4px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: var(--salesiano-blue);
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .topic-title {
+      font-weight: 800;
+      color: var(--salesiano-red);
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-size: 0.98rem;
+    }
+
+    p, li {
+      font-size: 0.87rem;
+      line-height: 1.5;
+      color: #2B2B2B;
+    }
+
+    ul {
+      margin-left: 18px;
+      margin-bottom: 8px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .example {
+      background-color: #EEF2FB;
+      padding: 7px 11px;
+      border-left: 4px solid var(--salesiano-blue);
+      border-radius: 6px;
+      margin: 6px 0;
+      font-weight: 400;
+      font-size: 0.84rem;
+      color: #1F2937;
+    }
+
+    .example strong {
+      color: var(--salesiano-blue);
+      font-weight: 700;
+    }
+
+    /* Botão Principal em Vermelho Salesiano */
+    .btn {
+      background-color: var(--salesiano-red);
+      color: white;
+      border: none;
+      padding: 12px 34px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      display: block;
+      margin: 12px auto 0 auto;
+      transition: all 0.2s ease;
+      box-shadow: 0 5px 14px rgba(214, 40, 40, 0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 30;
+      touch-action: manipulation;
+    }
+
+    .btn:hover, .btn:active {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 18px rgba(214, 40, 40, 0.45);
+      background-color: var(--salesiano-red-hover);
+    }
+
+    /* HEADER DO QUIZ */
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #F0F0F3;
+      flex-shrink: 0;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .q-counter {
+      font-weight: 800;
+      color: var(--salesiano-red);
+      font-size: 0.9rem;
+    }
+
+    .topic-badge {
+      background-color: #EEF2FB;
+      color: var(--salesiano-blue);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      border: 1px solid #C8D6F5;
+    }
+
+    .timer-badge {
+      background-color: var(--salesiano-blue);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* MENU DE QUESTÕES DIVIDIDO POR TÓPICOS */
+    .topic-nav-wrapper {
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr;
+      gap: 8px;
+      margin-bottom: 12px;
+      background: #F4F7FC;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid #D6E0F0;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+      .topic-nav-wrapper {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+
+    .topic-nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .topic-nav-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--salesiano-blue);
+      letter-spacing: 0.3px;
+    }
+
+    .topic-nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .q-grid-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1.5px solid #CBD1D8;
+      background: #FFFFFF;
+      color: var(--salesiano-blue);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .q-grid-btn:hover {
+      border-color: var(--salesiano-blue);
+      background-color: #E6ECF8;
+    }
+
+    .q-grid-btn.active {
+      border-color: var(--salesiano-red);
+      box-shadow: 0 0 0 2px var(--salesiano-red);
+      font-weight: 800;
+    }
+
+    .q-grid-btn.answered {
+      background-color: #D8E2F8;
+      color: var(--salesiano-blue);
+    }
+
+    .q-grid-btn.checked-correct {
+      background-color: var(--success-green);
+      color: #FFFFFF;
+      border-color: var(--success-green);
+    }
+
+    .q-grid-btn.checked-wrong {
+      background-color: var(--salesiano-red);
+      color: #FFFFFF;
+      border-color: var(--salesiano-red);
+    }
+
+    /* ÁREA INTERNA COM ROLAGEM PARA QUESTÃO + FEEDBACK */
+    .quiz-body-scroll {
+      max-height: 45dvh;
+      min-height: 200px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .question-title {
+      font-size: 0.94rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--salesiano-blue);
+      line-height: 1.45;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .opt-btn {
+      background: #F9F9FB;
+      border: 2px solid #E5E5EA;
+      padding: 9px 13px;
+      border-radius: 11px;
+      text-align: left;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      color: var(--salesiano-blue);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      touch-action: manipulation;
+    }
+
+    .opt-btn:hover {
+      border-color: var(--salesiano-blue);
+      background-color: #EEF2FB;
+    }
+
+    .opt-btn.selected {
+      border-color: var(--salesiano-blue);
+      background-color: #E0E8F9;
+      font-weight: 700;
+    }
+
+    .opt-btn.correct-opt {
+      border-color: var(--success-green);
+      background-color: #E8F5E9;
+      color: var(--success-green);
+      font-weight: 700;
+    }
+
+    .opt-btn.wrong-opt {
+      border-color: var(--error-red);
+      background-color: #FFEBEE;
+      color: var(--error-red);
+      font-weight: 700;
+    }
+
+    .opt-letter {
+      background: var(--salesiano-blue);
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .opt-btn.selected .opt-letter {
+      background: var(--salesiano-red);
+    }
+
+    .opt-btn.correct-opt .opt-letter {
+      background: var(--success-green);
+    }
+
+    .feedback-box {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      display: none;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .feedback-box.correct {
+      background-color: #E8F5E9;
+      color: #1B5E20;
+      border: 1.5px solid #A5D6A7;
+    }
+
+    .feedback-box.wrong {
+      background-color: #FFEBEE;
+      color: #B71C1C;
+      border: 1.5px solid #FFCDD2;
+    }
+
+    /* NAVEGAÇÃO DOS BOTÕES: [Previous] [Check] [Next] */
+    .quiz-nav-btns {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid #EFEFEF;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-quiz-nav {
+      background-color: var(--salesiano-red);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.84rem;
+      transition: background 0.2s;
+      touch-action: manipulation;
+    }
+
+    .btn-quiz-nav:hover {
+      background-color: var(--salesiano-red-hover);
+    }
+
+    .btn-quiz-check {
+      background-color: var(--salesiano-blue);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.86rem;
+      box-shadow: 0 4px 10px rgba(29, 51, 122, 0.25);
+      transition: background 0.2s;
+      touch-action: manipulation;
+    }
+
+    .btn-quiz-check:hover {
+      background-color: var(--salesiano-blue-dark);
+    }
+
+    .btn-quiz-check:disabled {
+      background-color: #D1D1D6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* RELATÓRIO FINAL */
+    .score-badge {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--salesiano-red);
+      margin: 4px 0;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .stat-pill.hits {
+      background-color: #E8F5E9;
+      color: var(--success-green);
+      border: 1px solid #A5D6A7;
+    }
+
+    .stat-pill.misses {
+      background-color: #FFEBEE;
+      color: var(--error-red);
+      border: 1px solid #FFCDD2;
+    }
+
+    .report-scroll {
+      background: #FAFBFF;
+      border: 2px solid var(--salesiano-red);
+      padding: 14px;
+      border-radius: 14px;
+      margin: 10px 0;
+      max-height: 45dvh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-wrapper">
+    <!-- HEADER CENTRALIZADO APENAS COM A LOGO -->
+    <div class="app-header" id="appHeader">
+      <div class="logo-card">
+        <img src="logosale.jpg" alt="Salesiano Aracaju" class="logo-img" onerror="this.onerror=null; this.src='https://placehold.co/132x132/1D337A/FFFFFF?text=Salesiano';">
+      </div>
+    </div>
+
+    <div class="container">
+      
+      <!-- PÁGINA 1: RESUMO DOS ASSUNTOS & INSTRUÇÕES -->
+      <div class="page active" id="page1">
+        <h2>Instruções e Revisão</h2>
+
+        <!-- CAIXA COM ROLAGEM CENTRALIZADA -->
+        <div class="summary-scrollbox">
+          <p><strong>Como funciona o quiz:</strong> Leia o resumo abaixo antes de começar. Ao clicar em <strong>Start quiz</strong>, você responderá a 30 questões em inglês divididas por tópicos. Use o menu superior para navegar entre as questões e clique em <strong>Check</strong> para conferir a resposta e a explicação.</p>
+
+          <div class="topic-title">1. Simple Past (Passado Simples)</div>
+          <p>Usado para ações iniciadas e concluídas em um tempo definido no passado.</p>
+          <ul>
+            <li><strong>Palavras-chave:</strong> <strong>yesterday</strong> (ontem), <strong>last night</strong> (ontem à noite), <strong>last week</strong> (semana passada), <strong>two days ago</strong> (dois dias atrás), <strong>in 2020</strong> (em 2020).</li>
+            <li><strong>Verbos Regulares:</strong> Recebem a terminação <strong>-ed</strong> na forma afirmativa.
+              <div class="example"><strong>She worked yesterday.</strong> (Ela trabalhou ontem.)<br><strong>They studied English last night.</strong> (Eles estudaram inglês ontem à noite.)</div>
+            </li>
+            <li><strong>Verbos Irregulares:</strong> Possuem forma própria na afirmativa e não seguem a regra do <strong>-ed</strong>.
+              <div class="example"><strong>I went to school two days ago.</strong> (Eu fui para a escola dois dias atrás.)<br><strong>He bought a new book last week.</strong> (Ele comprou um livro novo semana passada.)</div>
+            </li>
+            <li><strong>Negativas e Perguntas:</strong> Usamos o auxiliar <strong>did</strong> ou <strong>didn't</strong> e o verbo principal volta para a forma base (sem <strong>-ed</strong> e sem alteração irregular).
+              <div class="example"><strong>Did you go to the party?</strong> (Você foi à festa?)<br><strong>She didn't work yesterday.</strong> (Ela não trabalhou ontem.)</div>
+            </li>
+          </ul>
+
+          <div class="topic-title">2. Used to (Costumava)</div>
+          <p>Usado para falar de hábitos, rotinas ou estados que aconteciam com frequência no passado, mas não acontecem mais no presente.</p>
+          <ul>
+            <li><strong>Estrutura:</strong> Na afirmativa usamos <strong>used to</strong> + verbo na forma base. Na negativa e interrogativa usamos <strong>didn't use to</strong> ou <strong>Did ... use to</strong> (sem a letra d final em use).
+              <div class="example"><strong>I used to play soccer every day.</strong> (Eu costumava jogar futebol todos os dias.)<br><strong>She didn't use to like coffee.</strong> (Ela não costumava gostar de café.)<br><strong>Did they use to live in Aracaju?</strong> (Eles costumavam morar em Aracaju?)</div>
+            </li>
+          </ul>
+
+          <div class="topic-title">3. Past Continuous (Passado Contínuo)</div>
+          <p>Usado para descrever ações que estavam em andamento em um momento específico do passado ou que foram interrompidas por outra ação.</p>
+          <ul>
+            <li><strong>Estrutura:</strong> Sujeito + <strong>was</strong> ou <strong>were</strong> + verbo principal com <strong>-ing</strong>.</li>
+            <li><strong>Palavras-chave:</strong> <strong>while</strong> (enquanto), <strong>when</strong> (quando), <strong>at 8 PM yesterday</strong> (às 20h ontem).
+              <div class="example"><strong>I was studying at 8 PM yesterday.</strong> (Eu estava estudando às 20h ontem.)<br><strong>They were playing video games while I was cooking.</strong> (Eles estavam jogando videogame enquanto eu estava cozinhando.)<br><strong>She was sleeping when the phone rang.</strong> (Ela estava dormindo quando o telefone tocou.)</div>
+            </li>
+          </ul>
+        </div>
+
+        <button class="btn" id="btnStartQuiz" type="button">Start quiz</button>
+      </div>
+
+      <!-- PÁGINA 2: APLICAÇÃO DO QUIZ -->
+      <div class="page" id="page2">
+        <div class="quiz-header">
+          <span class="q-counter" id="qCounter">Question 1 of 30</span>
+          <span class="topic-badge" id="topicBadge">Simple Past</span>
+          <div class="timer-badge">
+            ⏱️ <span id="timerDisplay">00:00</span>
+          </div>
+        </div>
+
+        <!-- MENU NUMÉRICO DIVIDIDO POR TÓPICOS -->
+        <div class="topic-nav-wrapper">
+          <div class="topic-nav-group">
+            <span class="topic-nav-label">1. Simple Past (1–15)</span>
+            <div class="topic-nav-buttons" id="navTopic1"></div>
+          </div>
+          <div class="topic-nav-group">
+            <span class="topic-nav-label">2. Used to (16–20)</span>
+            <div class="topic-nav-buttons" id="navTopic2"></div>
+          </div>
+          <div class="topic-nav-group">
+            <span class="topic-nav-label">3. Past Continuous (21–30)</span>
+            <div class="topic-nav-buttons" id="navTopic3"></div>
+          </div>
+        </div>
+
+        <!-- CORPO DA QUESTÃO + FEEDBACK -->
+        <div class="quiz-body-scroll" id="quizBodyScroll">
+          <div id="questionContainer"></div>
+          <div class="feedback-box" id="feedbackBox"></div>
+        </div>
+
+        <!-- ORDEM DOS BOTÕES: PREVIOUS - CHECK - NEXT -->
+        <div class="quiz-nav-btns">
+          <button class="btn-quiz-nav" id="btnPrev" type="button">Previous</button>
+          <button class="btn-quiz-check" id="btnCheck" type="button">Check</button>
+          <button class="btn-quiz-nav" id="btnNext" type="button">Next</button>
+        </div>
+      </div>
+
+      <!-- PÁGINA 3: RESULTADO & RELATÓRIO -->
+      <div class="page" id="page3">
+        <h2>Relatório de Desempenho</h2>
+        <div id="resultSummary" style="text-align: center;"></div>
+        <div class="report-scroll" id="pedagogicalFeedback"></div>
+        <button class="btn" id="btnRestartQuiz" type="button">Refazer Quiz</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var currentQuestionIndex = 0;
+      var userAnswers = {};
+      var checkedQuestions = {};
+      var timerSeconds = 0;
+      var timerInterval = null;
+      var quizStarted = false;
+
+      function getEl(id) {
+        return document.getElementById(id);
+      }
+
+      function goToPage(pageNum) {
+        var pages = document.querySelectorAll('.page');
+        for (var i = 0; i < pages.length; i++) {
+          pages[i].classList.remove('active');
+          pages[i].style.display = 'none';
+        }
+        var targetPage = getEl('page' + pageNum);
+        if (targetPage) {
+          targetPage.classList.add('active');
+          targetPage.style.display = 'flex';
+        }
+      }
+
+      /*
+       * Gabarito anti-padrão (sem letras seguidas iguais e sem sequências óbvias):
+       * 1:D  2:A  3:E  4:B  5:C  6:A  7:D  8:B  9:E 10:C
+       * 11:A 12:D 13:B 14:E 15:C 16:B 17:D 18:A 19:E 20:C
+       * 21:D 22:A 23:E 24:B 25:C 26:A 27:D 28:E 29:B 30:C
+       */
+      var questions = [
+        // --- TÓPICO 1: SIMPLE PAST (1 a 15) ---
+        {
+          id: 1,
+          topic: "Simple Past",
+          text: "1. Complete the sentence with the correct Simple Past form: 'Last Sunday, Pedro and his cousins _____ a big sandcastle at Atalaia Beach.'",
+          options: ["build", "builded", "building", "built", "builds"],
+          answer: "built",
+          exp: "O verbo <strong>to build</strong> (construir) é irregular no passado. Sua forma no Simple Past afirmativo é <strong>built</strong>. A forma 'builded' não existe em inglês."
+        },
+        {
+          id: 2,
+          topic: "Simple Past",
+          text: "2. Choose the correct negative sentence in the Simple Past:",
+          options: [
+            "Gabriel didn't finish his science project yesterday.",
+            "Gabriel didn't finished his science project yesterday.",
+            "Gabriel not finished his science project yesterday.",
+            "Gabriel doesn't finished his science project yesterday.",
+            "Gabriel didn't finishes his science project yesterday."
+          ],
+          answer: "Gabriel didn't finish his science project yesterday.",
+          exp: "Na forma negativa do Simple Past, usamos o auxiliar <strong>didn't</strong> e o verbo principal volta obrigatoriamente à sua forma base (<strong>finish</strong>, sem a terminação -ed)."
+        },
+        {
+          id: 3,
+          topic: "Simple Past",
+          text: "3. Choose the correct option to complete the question: '_____ your aunt _____ a chocolate cake for your birthday?'",
+          options: [
+            "Did / made",
+            "Does / make",
+            "Was / make",
+            "Did / makes",
+            "Did / make"
+          ],
+          answer: "Did / make",
+          exp: "Em perguntas no Simple Past, iniciamos com o auxiliar <strong>Did</strong> e mantemos o verbo principal na forma base (<strong>make</strong>, e não no passado 'made')."
+        },
+        {
+          id: 4,
+          topic: "Simple Past",
+          text: "4. Identify the ONLY grammatically correct sentence in the Simple Past:",
+          options: [
+            "We clean our bedrooms three days ago.",
+            "We cleaned our bedrooms three days ago.",
+            "We cleaning our bedrooms three days ago.",
+            "We did cleaned our bedrooms three days ago.",
+            "We cleans our bedrooms three days ago."
+          ],
+          answer: "We cleaned our bedrooms three days ago.",
+          exp: "A expressão <strong>three days ago</strong> indica passado concluído. Como <strong>clean</strong> é um verbo regular, basta acrescentar <strong>-ed</strong> na afirmativa (<strong>cleaned</strong>)."
+        },
+        {
+          id: 5,
+          topic: "Simple Past",
+          text: "5. Complete the sentence with the correct irregular verb: 'Camila _____ her favorite sunglasses on the school bus last Friday.'",
+          options: ["leave", "leaved", "left", "leaving", "leaves"],
+          answer: "left",
+          exp: "O verbo <strong>to leave</strong> (deixar/esquecer) é irregular. No Simple Past afirmativo, sua conjugação correta é <strong>left</strong>."
+        },
+        {
+          id: 6,
+          topic: "Simple Past",
+          text: "6. Choose the correct negative form: 'The basketball team _____ the final match last month.'",
+          options: [
+            "didn't win",
+            "didn't won",
+            "not won",
+            "don't won",
+            "wasn't win"
+          ],
+          answer: "didn't win",
+          exp: "Para negar no Simple Past, usamos <strong>didn't</strong> + verbo na forma base (<strong>win</strong>). Usar 'didn't won' é incorreto porque o auxiliar já marca o passado."
+        },
+        {
+          id: 7,
+          topic: "Simple Past",
+          text: "7. Choose the correct interrogative sentence in the Simple Past:",
+          options: [
+            "Did Rafael spoke to the coach after practice?",
+            "Rafael did speak to the coach after practice?",
+            "Spoke Rafael to the coach after practice?",
+            "Did Rafael speak to the coach after practice?",
+            "Do Rafael spoke to the coach after practice?"
+          ],
+          answer: "Did Rafael speak to the coach after practice?",
+          exp: "A estrutura interrogativa correta no Simple Past é <strong>Did + sujeito + verbo na forma base</strong> (<strong>Did Rafael speak...</strong>). Não se usa 'spoke' após 'Did'."
+        },
+        {
+          id: 8,
+          topic: "Simple Past",
+          text: "8. Identify the ONLY grammatically correct sentence:",
+          options: [
+            "My uncle teached geography in Maceió in 2019.",
+            "My uncle taught geography in Maceió in 2019.",
+            "My uncle teaches geography in Maceió in 2019.",
+            "My uncle didn't taught geography in Maceió in 2019.",
+            "My uncle teaching geography in Maceió in 2019."
+          ],
+          answer: "My uncle taught geography in Maceió in 2019.",
+          exp: "O passado irregular de <strong>teach</strong> (ensinar) é <strong>taught</strong>. A forma 'teached' está incorreta, e na alternativa D o correto seria 'didn't teach'."
+        },
+        {
+          id: 9,
+          topic: "Simple Past",
+          text: "9. Complete the sentence with the correct regular verb spelling: 'The delivery boy _____ two heavy boxes up the stairs.'",
+          options: ["carryed", "carry", "carrying", "carries", "carried"],
+          answer: "carried",
+          exp: "Verbos regulares terminados em <strong>consoante + y</strong> (como <strong>carry</strong>) perdem o <strong>-y</strong> e recebem <strong>-ied</strong> no Simple Past: <strong>carried</strong>."
+        },
+        {
+          id: 10,
+          topic: "Simple Past",
+          text: "10. Complete the negative sentence: 'Sofia _____ the museum ticket because she forgot her wallet.'",
+          options: [
+            "didn't bought",
+            "not bought",
+            "didn't buy",
+            "wasn't buy",
+            "don't bought"
+          ],
+          answer: "didn't buy",
+          exp: "Na negativa do Simple Past, usamos <strong>didn't</strong> seguido da forma base do verbo (<strong>buy</strong>). Nunca usamos o passado 'bought' depois de 'didn't'."
+        },
+        {
+          id: 11,
+          topic: "Simple Past",
+          text: "11. Choose the right question for the answer: 'Yes, they did. They visited the aquarium yesterday.'",
+          options: [
+            "Did they visit the aquarium?",
+            "Did they visited the aquarium?",
+            "Do they visit the aquarium?",
+            "Were they visit the aquarium?",
+            "Visited they the aquarium?"
+          ],
+          answer: "Did they visit the aquarium?",
+          exp: "Como a resposta curta usa <strong>Yes, they did</strong>, a pergunta deve começar com <strong>Did</strong> e trazer o verbo regular <strong>visit</strong> na forma base (sem -ed)."
+        },
+        {
+          id: 12,
+          topic: "Simple Past",
+          text: "12. Identify the ONLY grammatically correct sentence:",
+          options: [
+            "Julia droped her phone on the kitchen floor.",
+            "Julia drop her phone on the kitchen floor yesterday.",
+            "Julia didn't dropped her phone on the kitchen floor.",
+            "Julia dropped her phone on the kitchen floor.",
+            "Julia dropping her phone on the kitchen floor."
+          ],
+          answer: "Julia dropped her phone on the kitchen floor.",
+          exp: "O verbo <strong>drop</strong> termina em consoante-vogal-consoante (CVC) e é monossílabo tônico; por isso, dobramos a última consoante antes de adicionar <strong>-ed</strong> (<strong>dropped</strong>)."
+        },
+        {
+          id: 13,
+          topic: "Simple Past",
+          text: "13. Complete with the correct Simple Past forms: 'Thiago _____ a comic book because he _____ want to watch TV.'",
+          options: [
+            "readed / didn't",
+            "read / didn't",
+            "read / wasn't",
+            "reads / didn't",
+            "read / don't"
+          ],
+          answer: "read / didn't",
+          exp: "O passado irregular de <strong>read</strong> escreve-se da mesma forma (<strong>read</strong>, pronunciado /red/). Para negar o verbo de ação <strong>want</strong> no passado, usamos <strong>didn't</strong>."
+        },
+        {
+          id: 14,
+          topic: "Simple Past",
+          text: "14. Choose the correct interrogative form in the Simple Past: 'What time _____ the concert _____ last night?'",
+          options: [
+            "did / began",
+            "was / begin",
+            "do / began",
+            "did / begins",
+            "did / begin"
+          ],
+          answer: "did / begin",
+          exp: "Com expressão interrogativa (<strong>What time</strong>) no Simple Past, a ordem é <strong>What time + did + sujeito + verbo na forma base</strong> (<strong>What time did the concert begin?</strong>)."
+        },
+        {
+          id: 15,
+          topic: "Simple Past",
+          text: "15. Identify the ONLY grammatically correct sentence:",
+          options: [
+            "My neighbors singed karaoke until midnight.",
+            "My neighbors didn't sang karaoke until midnight.",
+            "My neighbors sang karaoke until midnight.",
+            "Did your neighbors sang karaoke until midnight?",
+            "My neighbors singing karaoke until midnight."
+          ],
+          answer: "My neighbors sang karaoke until midnight.",
+          exp: "O verbo <strong>sing</strong> (cantar) é irregular e sua forma afirmativa no passado é <strong>sang</strong>. 'Singed' não existe, e após 'did/didn't' o verbo deve ficar na forma base 'sing'."
+        },
+
+        // --- TÓPICO 2: USED TO (16 a 20) ---
+        {
+          id: 16,
+          topic: "Used to",
+          text: "16. (Affirmative) Complete the sentence about a past habit: 'Five years ago, Helena _____ the piano every afternoon.'",
+          options: [
+            "use to practice",
+            "used to practice",
+            "used to practicing",
+            "was used to practice",
+            "uses to practice"
+          ],
+          answer: "used to practice",
+          exp: "Na forma afirmativa, usamos <strong>used to</strong> (com a letra -d no final) seguido do verbo principal na forma base (<strong>practice</strong>) para indicar um hábito passado."
+        },
+        {
+          id: 17,
+          topic: "Used to",
+          text: "17. (Negative) Choose the correct negative structure: 'Bruno _____ vegetables when he was eight years old.'",
+          options: [
+            "didn't used to eat",
+            "not used to eat",
+            "didn't use to eating",
+            "didn't use to eat",
+            "doesn't used to eat"
+          ],
+          answer: "didn't use to eat",
+          exp: "Na forma negativa, o auxiliar <strong>didn't</strong> já indica o passado; portanto, retiramos o '-d' de 'used', formando <strong>didn't use to + verbo na forma base</strong> (<strong>didn't use to eat</strong>)."
+        },
+        {
+          id: 18,
+          topic: "Used to",
+          text: "18. (Negative) Identify the ONLY grammatically correct negative sentence with 'used to':",
+          options: [
+            "Our grandparents didn't use to have smartphones.",
+            "Our grandparents didn't used to have smartphones.",
+            "Our grandparents didn't use to had smartphones.",
+            "Our grandparents no used to have smartphones.",
+            "Our grandparents weren't use to have smartphones."
+          ],
+          answer: "Our grandparents didn't use to have smartphones.",
+          exp: "A estrutura negativa padrão é <strong>sujeito + didn't use to + verbo base</strong>. Tanto 'use' quanto 'have' ficam sem marcas de passado."
+        },
+        {
+          id: 19,
+          topic: "Used to",
+          text: "19. (Interrogative) Complete the question correctly: '_____ your sister _____ comic books before bed?'",
+          options: [
+            "Did / used to read",
+            "Do / used to read",
+            "Did / use to reading",
+            "Was / use to read",
+            "Did / use to read"
+          ],
+          answer: "Did / use to read",
+          exp: "Na forma interrogativa, começamos com <strong>Did</strong> e usamos <strong>use to</strong> (sem o '-d' final) + verbo na forma base: <strong>Did your sister use to read...?</strong>"
+        },
+        {
+          id: 20,
+          topic: "Used to",
+          text: "20. (Interrogative) Choose the ONLY grammatically correct question:",
+          options: [
+            "Did Daniel used to ride a skateboard?",
+            "Did Daniel use to rode a skateboard?",
+            "Did Daniel use to ride a skateboard?",
+            "Does Daniel used to ride a skateboard?",
+            "Used Daniel to ride a skateboard?"
+          ],
+          answer: "Did Daniel use to ride a skateboard?",
+          exp: "Em perguntas sobre hábitos passados, usamos <strong>Did + sujeito + use to + verbo na forma base</strong> (<strong>Did Daniel use to ride...?</strong>)."
+        },
+
+        // --- TÓPICO 3: PAST CONTINUOUS (21 a 30) ---
+        {
+          id: 21,
+          topic: "Past Continuous",
+          text: "21. Complete the sentence in the Past Continuous: 'At 4 PM yesterday, I _____ my bedroom for the weekend.'",
+          options: [
+            "were tidying",
+            "was tidy",
+            "am tidying",
+            "was tidying",
+            "tidying"
+          ],
+          answer: "was tidying",
+          exp: "Para o pronome <strong>I</strong> no Past Continuous, usamos <strong>was</strong> + verbo com <strong>-ing</strong> (<strong>was tidying</strong>). Mantemos o 'y' antes de adicionar -ing."
+        },
+        {
+          id: 22,
+          topic: "Past Continuous",
+          text: "22. Choose the correct option: 'The mechanics _____ the red car when the rain started.'",
+          options: [
+            "were fixing",
+            "was fixing",
+            "were fix",
+            "are fixing",
+            "was fix"
+          ],
+          answer: "were fixing",
+          exp: "O sujeito <strong>The mechanics</strong> está no plural (equivalente a <strong>They</strong>), exigindo o auxiliar <strong>were</strong> + verbo com <strong>-ing</strong> (<strong>were fixing</strong>)."
+        },
+        {
+          id: 23,
+          topic: "Past Continuous",
+          text: "23. Choose the correct -ing spelling to complete the sentence: 'Beatriz was _____ a funny story in her notebook.'",
+          options: [
+            "createing",
+            "creatting",
+            "created",
+            "creates",
+            "creating"
+          ],
+          answer: "creating",
+          exp: "Verbos terminados em <strong>-e</strong> mudo (como <strong>create</strong>) perdem o <strong>-e</strong> antes de receberem <strong>-ing</strong>: <strong>creating</strong>."
+        },
+        {
+          id: 24,
+          topic: "Past Continuous",
+          text: "24. Complete the negative sentence in the Past Continuous: 'Mateus _____ video games when his mom arrived; he was doing his homework.'",
+          options: [
+            "weren't playing",
+            "wasn't playing",
+            "didn't playing",
+            "wasn't play",
+            "not was playing"
+          ],
+          answer: "wasn't playing",
+          exp: "Para negar no Past Continuous com o sujeito <strong>Mateus (He)</strong>, usamos <strong>wasn't</strong> (was not) + verbo principal com <strong>-ing</strong> (<strong>wasn't playing</strong>)."
+        },
+        {
+          id: 25,
+          topic: "Past Continuous",
+          text: "25. Choose the correct -ing form for the verb 'sit': 'The tourists _____ under the palm trees all morning.'",
+          options: [
+            "was sitting",
+            "were siting",
+            "were sitting",
+            "was siting",
+            "were sat"
+          ],
+          answer: "were sitting",
+          exp: "Com sujeito plural (<strong>The tourists</strong>), usamos <strong>were</strong>. Como <strong>sit</strong> é monossílabo terminado em consoante-vogal-consoante (CVC), dobramos o 't': <strong>were sitting</strong>."
+        },
+        {
+          id: 26,
+          topic: "Past Continuous",
+          text: "26. Complete the question in the Past Continuous: 'Where _____ you _____ when I saw you at Shopping Jardins?'",
+          options: [
+            "were / going",
+            "was / going",
+            "were / go",
+            "did / going",
+            "are / going"
+          ],
+          answer: "were / going",
+          exp: "Com o pronome <strong>you</strong> no Past Continuous, o auxiliar correto é <strong>were</strong>, seguido do verbo com <strong>-ing</strong> (<strong>Where were you going...?</strong>)."
+        },
+        {
+          id: 27,
+          topic: "Past Continuous",
+          text: "27. Complete the sentence: 'While Leonardo _____ the guitar, his sister was singing.'",
+          options: [
+            "were playing",
+            "played",
+            "was play",
+            "was playing",
+            "is playing"
+          ],
+          answer: "was playing",
+          exp: "A palavra <strong>While</strong> (enquanto) indica duas ações simultâneas em andamento no passado. Para <strong>Leonardo (He)</strong>, usamos <strong>was playing</strong>."
+        },
+        {
+          id: 28,
+          topic: "Past Continuous",
+          text: "28. Choose the correct -ing spelling to complete the sentence: 'The kids were _____ in the living room during the party.'",
+          options: [
+            "dancying",
+            "danceing",
+            "danced",
+            "dances",
+            "dancing"
+          ],
+          answer: "dancing",
+          exp: "O verbo <strong>dance</strong> termina em <strong>-e</strong> mudo. Ao adicionar <strong>-ing</strong>, retiramos a letra <strong>-e</strong> final: <strong>dancing</strong>."
+        },
+        {
+          id: 29,
+          topic: "Past Continuous",
+          text: "29. Choose the correct negative form: 'We _____ to the radio because the battery was dead.'",
+          options: [
+            "wasn't listening",
+            "weren't listening",
+            "didn't listening",
+            "weren't listen",
+            "aren't listening"
+          ],
+          answer: "weren't listening",
+          exp: "Para o sujeito <strong>We</strong> na negativa do Past Continuous, usamos <strong>weren't</strong> (were not) + verbo com <strong>-ing</strong> (<strong>weren't listening</strong>)."
+        },
+        {
+          id: 30,
+          topic: "Past Continuous",
+          text: "30. Identify the ONLY grammatically correct sentence in the Past Continuous:",
+          options: [
+            "Were Larissa drawing when the bell rang?",
+            "Did Larissa drawing when the bell rang?",
+            "Was Larissa drawing when the bell rang?",
+            "Was Larissa draw when the bell rang?",
+            "Larissa was draw when the bell rang?"
+          ],
+          answer: "Was Larissa drawing when the bell rang?",
+          exp: "Para formar uma pergunta no Past Continuous com sujeito singular (<strong>Larissa = She</strong>), colocamos <strong>Was</strong> antes do sujeito e o verbo principal com <strong>-ing</strong> (<strong>Was Larissa drawing...?</strong>)."
+        }
+      ];
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function startQuiz() {
+        quizStarted = true;
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        checkedQuestions = {};
+        timerSeconds = 0;
+
+        clearInterval(timerInterval);
+        var timerEl = getEl('timerDisplay');
+        if (timerEl) timerEl.innerText = '00:00';
+
+        renderQuestionGrid();
+        renderQuestion();
+        goToPage(2);
+        startTimer();
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function() {
+          timerSeconds++;
+          var mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+          var secs = String(timerSeconds % 60).padStart(2, '0');
+          var timerEl = getEl('timerDisplay');
+          if (timerEl) timerEl.innerText = mins + ':' + secs;
+        }, 1000);
+      }
+
+      function renderQuestionGrid() {
+        var nav1 = getEl('navTopic1');
+        var nav2 = getEl('navTopic2');
+        var nav3 = getEl('navTopic3');
+
+        if (!nav1 || !nav2 || !nav3) return;
+        nav1.innerHTML = '';
+        nav2.innerHTML = '';
+        nav3.innerHTML = '';
+
+        for (var i = 0; i < questions.length; i++) {
+          (function(idx) {
+            var q = questions[idx];
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'q-grid-btn';
+            btn.textContent = (idx + 1);
+
+            if (idx === currentQuestionIndex) {
+              btn.classList.add('active');
+            }
+            if (checkedQuestions[q.id]) {
+              btn.classList.add(userAnswers[q.id] === q.answer ? 'checked-correct' : 'checked-wrong');
+            } else if (userAnswers[q.id]) {
+              btn.classList.add('answered');
+            }
+
+            btn.addEventListener('click', function() {
+              jumpToQuestion(idx);
+            });
+
+            if (q.id <= 15) {
+              nav1.appendChild(btn);
+            } else if (q.id <= 20) {
+              nav2.appendChild(btn);
+            } else {
+              nav3.appendChild(btn);
+            }
+          })(i);
+        }
+      }
+
+      function jumpToQuestion(index) {
+        currentQuestionIndex = index;
+        renderQuestionGrid();
+        renderQuestion();
+      }
+
+      function renderQuestion() {
+        var q = questions[currentQuestionIndex];
+        if (!q) return;
+
+        var container = getEl('questionContainer');
+        var feedbackBox = getEl('feedbackBox');
+        var scrollArea = getEl('quizBodyScroll');
+
+        feedbackBox.style.display = 'none';
+        feedbackBox.className = 'feedback-box';
+
+        getEl('qCounter').innerText = 'Question ' + (currentQuestionIndex + 1) + ' of ' + questions.length;
+        getEl('topicBadge').innerText = q.topic;
+
+        var letters = ['A', 'B', 'C', 'D', 'E'];
+        var isChecked = !!checkedQuestions[q.id];
+        var userAns = userAnswers[q.id];
+
+        container.innerHTML = '';
+
+        var titleDiv = document.createElement('div');
+        titleDiv.className = 'question-title';
+        titleDiv.textContent = q.text;
+        container.appendChild(titleDiv);
+
+        var gridDiv = document.createElement('div');
+        gridDiv.className = 'options-grid';
+
+        for (var idx = 0; idx < q.options.length; idx++) {
+          (function(optionIdx) {
+            var opt = q.options[optionIdx];
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'opt-btn';
+
+            if (isChecked) {
+              if (opt === q.answer) {
+                btn.classList.add('correct-opt');
+              } else if (opt === userAns && userAns !== q.answer) {
+                btn.classList.add('wrong-opt');
+              }
+            } else if (userAns === opt) {
+              btn.classList.add('selected');
+            }
+
+            var letterSpan = document.createElement('span');
+            letterSpan.className = 'opt-letter';
+            letterSpan.textContent = letters[optionIdx] || '';
+
+            var textSpan = document.createElement('span');
+            textSpan.textContent = opt;
+
+            btn.appendChild(letterSpan);
+            btn.appendChild(textSpan);
+
+            btn.addEventListener('click', function() {
+              selectOptionByIndex(optionIdx);
+            });
+
+            gridDiv.appendChild(btn);
+          })(idx);
+        }
+
+        container.appendChild(gridDiv);
+
+        getEl('btnPrev').style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+        getEl('btnNext').innerText = currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next';
+        getEl('btnCheck').disabled = isChecked;
+
+        if (isChecked) {
+          showQuestionFeedback();
+        } else if (scrollArea) {
+          scrollArea.scrollTop = 0;
+        }
+      }
+
+      function selectOptionByIndex(optionIndex) {
+        var q = questions[currentQuestionIndex];
+        if (!q || checkedQuestions[q.id]) return;
+
+        var chosenOpt = q.options[optionIndex];
+        if (chosenOpt === undefined) return;
+
+        userAnswers[q.id] = chosenOpt;
+        renderQuestionGrid();
+        renderQuestion();
+      }
+
+      function checkAnswer() {
+        var q = questions[currentQuestionIndex];
+        if (!q || checkedQuestions[q.id]) return;
+
+        var userAns = userAnswers[q.id];
+        if (!userAns) {
+          var feedbackBox = getEl('feedbackBox');
+          feedbackBox.className = 'feedback-box wrong';
+          feedbackBox.style.display = 'block';
+          feedbackBox.innerHTML = '<strong>⚠️ Selecione uma alternativa antes de clicar em Check.</strong>';
+          return;
+        }
+
+        checkedQuestions[q.id] = true;
+        renderQuestionGrid();
+        renderQuestion();
+      }
+
+      function showQuestionFeedback() {
+        var q = questions[currentQuestionIndex];
+        var feedbackBox = getEl('feedbackBox');
+        var scrollArea = getEl('quizBodyScroll');
+        if (!q) return;
+
+        var userAns = userAnswers[q.id];
+        var isCorrect = userAns === q.answer;
+
+        feedbackBox.style.display = 'block';
+
+        if (isCorrect) {
+          feedbackBox.className = 'feedback-box correct';
+          feedbackBox.innerHTML = '<strong>✅ Resposta Correta!</strong><br><strong>Explicação:</strong> ' + q.exp;
+        } else {
+          feedbackBox.className = 'feedback-box wrong';
+          feedbackBox.innerHTML =
+            '<strong>❌ Resposta Incorreta.</strong><br>' +
+            '<strong>Você marcou:</strong> ' + escapeHtml(userAns) + '<br>' +
+            '<strong>Alternativa correta:</strong> <strong>' + escapeHtml(q.answer) + '</strong><br>' +
+            '<strong>Explicação:</strong> ' + q.exp;
+        }
+
+        if (scrollArea) {
+          scrollArea.scrollTop = scrollArea.scrollHeight;
+        }
+      }
+
+      function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          renderQuestionGrid();
+          renderQuestion();
+        }
+      }
+
+      function nextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+          currentQuestionIndex++;
+          renderQuestionGrid();
+          renderQuestion();
+        } else {
+          finishQuiz();
+        }
+      }
+
+      function finishQuiz() {
+        if (!quizStarted) return;
+
+        clearInterval(timerInterval);
+        quizStarted = false;
+
+        var correctCount = 0;
+        var errorsByTopic = {
+          simplePast: 0,
+          usedTo: 0,
+          pastContinuous: 0
+        };
+
+        for (var i = 0; i < questions.length; i++) {
+          var q = questions[i];
+          var uAns = userAnswers[q.id];
+          if (uAns === q.answer) {
+            correctCount++;
+          } else {
+            if (q.id <= 15) {
+              errorsByTopic.simplePast++;
+            } else if (q.id <= 20) {
+              errorsByTopic.usedTo++;
+            } else {
+              errorsByTopic.pastContinuous++;
+            }
+          }
+        }
+
+        var total = questions.length;
+        var wrongCount = total - correctCount;
+        var grade = ((correctCount / total) * 10).toFixed(1);
+        var hitPct = ((correctCount / total) * 100).toFixed(1);
+        var missPct = ((wrongCount / total) * 100).toFixed(1);
+
+        getEl('resultSummary').innerHTML =
+          '<div class="score-badge">Nota Final: ' + grade + ' / 10.0</div>' +
+          '<div class="stats-row">' +
+            '<span class="stat-pill hits">Acertos: ' + correctCount + ' (' + hitPct + '%)</span>' +
+            '<span class="stat-pill misses">Erros: ' + wrongCount + ' (' + missPct + '%)</span>' +
+          '</div>' +
+          '<p style="font-size: 0.85rem; color: #555;">' +
+            'Tempo total: <strong>' + Math.floor(timerSeconds / 60) + 'm ' + (timerSeconds % 60) + 's</strong>' +
+          '</p>';
+
+        var fbText = '<strong style="color: var(--salesiano-blue); font-size: 0.95rem;">Análise por Tópico e Recomendações de Estudo:</strong>' +
+          '<ul style="margin-top: 8px;">' +
+            '<li><strong>Simple Past (15 questões):</strong> ' + (15 - errorsByTopic.simplePast) + ' acertos / ' + errorsByTopic.simplePast + ' erros.</li>' +
+            '<li><strong>Used to (5 questões):</strong> ' + (5 - errorsByTopic.usedTo) + ' acertos / ' + errorsByTopic.usedTo + ' erros.</li>' +
+            '<li><strong>Past Continuous (10 questões):</strong> ' + (10 - errorsByTopic.pastContinuous) + ' acertos / ' + errorsByTopic.pastContinuous + ' erros.</li>' +
+          '</ul>';
+
+        var recommendations = [];
+
+        if (errorsByTopic.simplePast >= 4) {
+          recommendations.push('<strong>Revisar Simple Past:</strong> Você teve um número relevante de erros neste tópico. Revise a tabela de verbos irregulares na afirmativa e lembre-se de que, ao usar <strong>did</strong> ou <strong>didn\'t</strong>, o verbo principal volta para a forma base.');
+        }
+        if (errorsByTopic.usedTo >= 2) {
+          recommendations.push('<strong>Revisar Used to:</strong> Atenção à perda da letra <strong>-d</strong> nas frases negativas (<strong>didn\'t use to</strong>) e interrogativas (<strong>Did ... use to</strong>).');
+        }
+        if (errorsByTopic.pastContinuous >= 3) {
+          recommendations.push('<strong>Revisar Past Continuous:</strong> Pratique a concordância entre sujeito singular (<strong>was</strong>) e plural (<strong>were</strong>), além das regras ortográficas para acrescentar <strong>-ing</strong>.');
+        }
+
+        if (wrongCount === 0) {
+          fbText += '<p style="margin-top: 8px; color: var(--success-green);"><strong>Excelente trabalho!</strong> Você acertou 100% das questões e demonstrou total domínio dos três conteúdos.</p>';
+        } else if (recommendations.length > 0) {
+          fbText += '<div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #CBD5E1;"><strong style="color: var(--salesiano-red);">Recomendações de Revisão:</strong><ul style="margin-top: 6px;">';
+          for (var r = 0; r < recommendations.length; r++) {
+            fbText += '<li>' + recommendations[r] + '</li>';
+          }
+          fbText += '</ul></div>';
+        } else {
+          fbText += '<p style="margin-top: 8px; color: var(--salesiano-blue);"><strong>Bom desempenho!</strong> Você teve poucos erros pontuais. Vale apenas reler as justificativas das questões que errou para fechar 100%.</p>';
+        }
+
+        getEl('pedagogicalFeedback').innerHTML = fbText;
+        goToPage(3);
+      }
+
+      function resetToHome() {
+        clearInterval(timerInterval);
+        quizStarted = false;
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        checkedQuestions = {};
+        timerSeconds = 0;
+
+        goToPage(1);
+      }
+
+      function bindEvents() {
+        var btnStart = getEl('btnStartQuiz');
+        var btnPrev = getEl('btnPrev');
+        var btnCheck = getEl('btnCheck');
+        var btnNext = getEl('btnNext');
+        var btnRestart = getEl('btnRestartQuiz');
+
+        if (btnStart) btnStart.addEventListener('click', startQuiz);
+        if (btnPrev) btnPrev.addEventListener('click', prevQuestion);
+        if (btnCheck) btnCheck.addEventListener('click', checkAnswer);
+        if (btnNext) btnNext.addEventListener('click', nextQuestion);
+        if (btnRestart) btnRestart.addEventListener('click', resetToHome);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          bindEvents();
+          goToPage(1);
+        });
+      } else {
+        bindEvents();
+        goToPage(1);
+      }
+    })();
+  </script>
+</body>
+</html>
